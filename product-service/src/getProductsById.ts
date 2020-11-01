@@ -1,9 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import productList from "../tests/productList.json";
+import productList from "../productList.json";
 import axios from 'axios'
 
-
+// function is for async/awit try/catch example
 const getWeatherInfo = async (productId) => {
   
   const OPEN_WEATHER_URL = 'http://api.openweathermap.org/data/2.5/weather'
@@ -25,25 +25,34 @@ const getWeatherInfo = async (productId) => {
 }
 
 export const getProductsById: APIGatewayProxyHandler = async (event, _context) => {
-  const { pathParameters:{productId}} = event;
-
-  const  weatherData = await getWeatherInfo(productId)
-
+  
   let statusCode = 404;
   let result = {  }
+  
+  try {
+    
+    const { pathParameters:{productId}} = event;
+    
+    //  needed as awit using example
+    const  weatherData = await getWeatherInfo(productId)
 
-  const filteredProducts = productList.filter((product)=> product.id === productId)
+    const filteredProducts = productList.filter((product)=> product.id === productId)
 
-  if(filteredProducts.length > 0){
-    statusCode = 200;
-    result = filteredProducts[0];
-  }
-  else{
-    result = {
-      message: 'Product not found',
-      weather: weatherData
+    if(filteredProducts.length > 0){
+      statusCode = 200;
+      result = filteredProducts[0];
     }
-  }  
+    else{
+      result = {
+        message: 'Product not found'
+      }
+    }  
+  } catch( error ) {
+    statusCode = 500;
+    result = {
+      message: 'internal server error'
+    }
+  }
 
   return {
     statusCode,
