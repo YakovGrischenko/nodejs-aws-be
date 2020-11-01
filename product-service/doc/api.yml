@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: RSS AWS Task-3 (@yakovgrischenko)
+  description: Shop API documentation. https://github.com/yakovgrischenko
+  version: 1.0.0
+
+servers:
+  - url: https://f9cbmg19ad.execute-api.eu-west-1.amazonaws.com/dev/
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        count:
+          type: integer
+        description:
+          type: string
+        id:
+          type: string
+        price:
+          type: number
+        title:
+          type: string
+
+paths:
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      description: Gets all products 
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+  /products/{productId}:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      description: Gets a product by ID
+        e.g. “/products/7567ec4b-b10c-48c5-9345-fc73348a80a1” 
+        in case of missing product with ID weather for city with name ID will be requested. This optional logic allows you to test optional subtasks for task-3
+        
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        404:
+          description: Product not found
