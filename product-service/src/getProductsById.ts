@@ -36,11 +36,11 @@ export const getProductsById: APIGatewayProxyHandler = async (event, _context) =
     //  needed as awit using example
     const  weatherData = await getWeatherInfo(productId)
 
-    const filteredProducts = productList.filter((product)=> product.id === productId)
+    const product = productList.find(product => product.id === productId)
 
-    if(filteredProducts.length > 0){
+    if(product){
       statusCode = 200;
-      result = filteredProducts[0];
+      result = product;
     }
     else{
       result = {
