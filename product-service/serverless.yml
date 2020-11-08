@@ -24,6 +24,14 @@ provider:
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 functions:
+  postProduct:
+    handler: handler.postProduct
+    events:
+      - http:
+          method: post
+          path: products
+          cors:
+            origin: "*"
   getProductsList:
     handler: handler.getProductsList
     events:

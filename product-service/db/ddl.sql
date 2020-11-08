@@ -18,7 +18,7 @@ create table stocks (
 	foreign key ("product_id") references "products" ("id")
 );
 
-insert into c (id, title, price) values
+insert into products (id, title, price) values
 ('33a36bf5-a146-406c-8655-e8977d8e0ab4', 'product2', 3),
 ('33a36bf5-a146-406c-8655-e8977d8e0ab5', 'product3', 4);
 

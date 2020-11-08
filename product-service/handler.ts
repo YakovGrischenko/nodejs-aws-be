@@ -1,5 +1,7 @@
-import 'source-map-support/register';
+import "source-map-support/register";
 
-export { getProductsList  }  from "./src/getProductsList";
+export { getProductsList } from "./src/getProductsList";
 
-export { getProductsById  }  from "./src/getProductsById";
+export { getProductsById } from "./src/getProductsById";
+
+export { postProduct } from "./src/postProduct";
