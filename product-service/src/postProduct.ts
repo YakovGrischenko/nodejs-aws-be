@@ -6,6 +6,7 @@ import { dbOptions } from './dbOptions'
 
 
 export const postProduct: APIGatewayProxyHandler = async (event, _context) => {
+  console.log('Lambda function: postProduct.  Event:', event);
   const { title, description = "", price = 0, count = 0 } = JSON.parse(
     event.body
   );

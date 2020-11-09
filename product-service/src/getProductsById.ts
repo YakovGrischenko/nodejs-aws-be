@@ -9,6 +9,7 @@ export const getProductsById: APIGatewayProxyHandler = async (
   event,
   _context
 ) => {
+  console.log('Lambda function: getProductsById.  Event:', event);
   let statusCode = 404;
   let result = {};
   const client = new Client(dbOptions);
