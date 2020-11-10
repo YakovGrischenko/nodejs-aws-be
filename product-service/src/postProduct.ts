@@ -36,12 +36,12 @@ export const postProduct: APIGatewayProxyHandler = async (event, _context) => {
     result = {
       message: "product data is invalid: title is missing or wrong type",
     };
-  } else if (typeof price !== 'number' || price < 0) {
+  } else if (!price || isNaN(parseInt(price)) ) {
     statusCode = 400;
     result = {
       message: "product data is invalid: price is incorrect",
     };
-  } else if (typeof count !== 'number' || count < 0) {
+  } else if (!count || isNaN(parseInt(count)) ){
     statusCode = 400;
     result = {
       message: "product data is invalid: count is incorrect",
