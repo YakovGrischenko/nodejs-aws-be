@@ -4,30 +4,47 @@ import { Client } from "pg";
 
 import { dbOptions } from './dbOptions'
 
+const headers = {
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "OPTIONS,POST",
+}
 
 export const postProduct: APIGatewayProxyHandler = async (event, _context) => {
   console.log('Lambda function: postProduct.  Event:', event);
-  const { title, description = "", price = 0, count = 0 } = JSON.parse(
-    event.body
-  );
+  let parsedBody;
+  try{
+    parsedBody = JSON.parse(
+      event.body
+    );
+  } catch (err){
+    return {
+      statusCode:400,
+      headers,
+      body: JSON.stringify({
+        message: "body is invalid or missing",
+      }, null, 2),
+    };
+  }
+  const { title, description = "", price = 0, count = 0 } = parsedBody;
 
   let statusCode = 404;
   let result = {};
 
-  if (!title) {
+  if (!title || typeof title !== 'string') {
     statusCode = 400;
     result = {
-      message: "product data is invalid: title missing",
+      message: "product data is invalid: title is missing or wrong type",
     };
-  } else if (price < 0) {
+  } else if (typeof price !== 'number' || price < 0) {
     statusCode = 400;
     result = {
-      message: "product data is invalid: price is negative",
+      message: "product data is invalid: price is incorrect",
     };
-  } else if (count < 0) {
+  } else if (typeof count !== 'number' || count < 0) {
     statusCode = 400;
     result = {
-      message: "product data is invalid: count is negative",
+      message: "product data is invalid: count is incorrect",
     };
   } else {
     const client = new Client(dbOptions);
@@ -77,12 +94,7 @@ export const postProduct: APIGatewayProxyHandler = async (event, _context) => {
 
   return {
     statusCode,
-    headers: {
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,POST",
-    },
-
+    headers,
     body: JSON.stringify(result, null, 2),
   };
 };
