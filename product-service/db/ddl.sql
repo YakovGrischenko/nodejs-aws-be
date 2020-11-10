@@ -13,7 +13,7 @@ create table products (
 DROP TABLE IF exists stocks;
 
 create table stocks (
-	product_id uuid unique,
+	product_id uuid NOT NULL unique ,
 	count integer,
 	foreign key ("product_id") references "products" ("id")
 );
