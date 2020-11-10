@@ -1,6 +1,16 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 import { Client } from "pg";
+import * as Joi from "joi";
+
+//TODO replace to product model after cross check
+const productSchema = Joi.object({
+  title: Joi.string().required(),
+  description: Joi.string(),
+  price: Joi.number().required(),
+  count: Joi.number().integer().required(),
+});
+
 
 import { dbOptions } from './dbOptions'
 
@@ -26,27 +36,23 @@ export const postProduct: APIGatewayProxyHandler = async (event, _context) => {
       }, null, 2),
     };
   }
+
+  const validation = productSchema.validate(parsedBody, { abortEarly: false });
+  if (validation.error) {
+    const errorsList = validation.error.details.map(({ message }) => message);
+    return {
+      statusCode: 400,
+      body: JSON.stringify(errorsList, null, 2),
+    }
+  }
+
+
   const { title, description = "", price = 0, count = 0 } = parsedBody;
 
   let statusCode = 404;
   let result = {};
 
-  if (!title || typeof title !== 'string') {
-    statusCode = 400;
-    result = {
-      message: "product data is invalid: title is missing or wrong type",
-    };
-  } else if (!price || isNaN(parseInt(price)) ) {
-    statusCode = 400;
-    result = {
-      message: "product data is invalid: price is incorrect",
-    };
-  } else if (!count || isNaN(parseInt(count)) ){
-    statusCode = 400;
-    result = {
-      message: "product data is invalid: count is incorrect",
-    };
-  } else {
+  try {
     const client = new Client(dbOptions);
     try {
       await client.connect();
@@ -60,13 +66,12 @@ export const postProduct: APIGatewayProxyHandler = async (event, _context) => {
 
       const { id: newUUID } = dmlResult.rows[0];
 
-      const stockResult = await client.query(
+      await client.query(
         `insert into stocks (product_id, count) values 
-        ($1, $2) returning *`,
+        ($1, $2)`,
         [newUUID, count]
       );
       
-
       const {
         rows: [product],
       } = await client.query(
@@ -90,8 +95,12 @@ export const postProduct: APIGatewayProxyHandler = async (event, _context) => {
       // in case if error was occurred, connection will not close automatically
       client.end(); // manual closing of connection
     }
-  }
-
+  } catch (err) {
+    statusCode = 500;
+    result = {
+      message: "internal server error",
+    };
+  } 
   return {
     statusCode,
     headers,
