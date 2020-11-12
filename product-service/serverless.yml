@@ -12,7 +12,8 @@ custom:
 # Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
-frameworkVersion: '2'
+  - serverless-dotenv-plugin
+frameworkVersion: "2"
 provider:
   name: aws
   runtime: nodejs12.x
@@ -22,8 +23,15 @@ provider:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-
 functions:
+  postProduct:
+    handler: handler.postProduct
+    events:
+      - http:
+          method: post
+          path: products
+          cors:
+            origin: "*"
   getProductsList:
     handler: handler.getProductsList
     events:
@@ -31,7 +39,7 @@ functions:
           method: get
           path: products
           cors:
-            origin: '*'
+            origin: "*"
   getProductsById:
     handler: handler.getProductsById
     events:
@@ -39,4 +47,4 @@ functions:
           method: get
           path: products/{productId}
           cors:
-            origin: '*'          
+            origin: "*"
