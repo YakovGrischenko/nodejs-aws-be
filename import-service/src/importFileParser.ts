@@ -31,7 +31,7 @@ export const importFileParser: S3Handler = async (event: S3Event) => {
         })
         .on('end', async () => {
           console.log(
-            'moveing file  ',
+            'moving file  ',
             BUCKET + '/' + record.s3.object.key,
             'to /parsed folder'
           )

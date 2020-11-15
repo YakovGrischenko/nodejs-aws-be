@@ -18,6 +18,20 @@ export const importProductsFile: APIGatewayProxyHandler = async (
       2
     )
   }
+
+  if (!event.queryStringParameters || !event.queryStringParameters.name) {
+    return {
+      statusCode: 400,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify(
+        {
+          message: 'name parametr is missing'
+        },
+        null,
+        2
+      )
+    }
+  }
   const fileName = event.queryStringParameters.name
   const filePath = `uploaded/${fileName}`
 
