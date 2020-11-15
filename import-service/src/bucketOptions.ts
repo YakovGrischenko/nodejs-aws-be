@@ -1,1 +1,1 @@
-export const BUCKET = "rss-aws-task5-yg";
+export const BUCKET = 'rss-aws-task5-yg'
