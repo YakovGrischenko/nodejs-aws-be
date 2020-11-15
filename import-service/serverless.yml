@@ -1,0 +1,58 @@
+service:
+  name: import-service
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+frameworkVersion: "2"
+provider:
+  name: aws
+  runtime: nodejs12.x
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "s3:ListBucket"
+      Resource:
+        - "arn:aws:s3:::rss-aws-task5-yg"
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+        - "arn:aws:s3:::rss-aws-task5-yg/*"
+
+  stage: dev
+  region: eu-west-1
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+functions:
+  importProductsFile:
+    handler: handler.importProductsFile
+    events:
+      - http:
+          method: get
+          path: import
+          cors:
+            origin: "*"
+          request:
+            parameters:
+              querystrings:
+                name: true
+
+  importFileParser:
+    handler: handler.importFileParser
+    events:
+      - s3:
+          bucket: rss-aws-task5-yg
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+          existing: true
