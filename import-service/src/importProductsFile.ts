@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
+import { S3 } from 'aws-sdk'
 import { BUCKET } from './bucketOptions'
 import 'source-map-support/register'
 
@@ -35,7 +35,7 @@ export const importProductsFile: APIGatewayProxyHandler = async (
   const fileName = event.queryStringParameters.name
   const filePath = `uploaded/${fileName}`
 
-  const s3 = new AWS.S3({ region: 'eu-west-1' })
+  const s3 = new S3({ region: 'eu-west-1' })
 
   const params = {
     Bucket: BUCKET,

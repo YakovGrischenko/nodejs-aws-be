@@ -1,3 +1,4 @@
+import * as AWSMock from 'aws-sdk-mock'
 import { importProductsFile } from './importProductsFile'
 
 const headers = {
@@ -6,14 +7,23 @@ const headers = {
 
 describe('importProductsFile tests', () => {
   test('Request signed url', async () => {
+    AWSMock.mock(
+      'S3',
+      'getSignedUrl',
+
+      (operation: string, params: any, callback: Function) => {
+        console.log('S3', 'getSignedUrl', 'mock called')
+        callback(null, 'moched_signed_url')
+      }
+    )
+
     const request = {
       queryStringParameters: {
         name: 'import.csv'
       }
     }
 
-    const signedUrl =
-      'https://rss-aws-task5-yg.s3.eu-west-1.amazonaws.com/uploaded/Qwe?AWSAccessKeyId=AKIA24SKNYDDU6LLVKMV&Content-Type=text%2Fcsv&Expires=1605506389&Signature=CQ1BDy5HzGhWqEtA%2Bqa77zgm6us%3D'
+    const signedUrl = 'moched_signed_url'
 
     const response = {
       statusCode: 203,
@@ -21,6 +31,8 @@ describe('importProductsFile tests', () => {
       headers
     }
     await expect(importProductsFile(request)).resolves.toEqual(response)
+
+    AWSMock.restore('S3')
   })
 
   test('400 response on missing name parametr', async () => {
