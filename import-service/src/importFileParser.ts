@@ -8,6 +8,7 @@ export const importFileParser: S3Handler = async (event: S3Event) => {
   console.log('lambda : importFileParser, event: ', event)
 
   try {
+    const sqs = new AWS.SQS()
     const s3 = new AWS.S3({ region: 'eu-west-1' })
 
     for (const record of event.Records) {
@@ -25,6 +26,19 @@ export const importFileParser: S3Handler = async (event: S3Event) => {
           .pipe(csv())
           .on('data', (data) => {
             console.log(data)
+
+            sqs.sendMessage(
+              {
+                QueueUrl: process.env.SQS_URL,
+                MessageBody: JSON.stringify(data)
+              },
+              () => {
+                console.log(
+                  `Send message to ${process.env.SQS_URL} data:`,
+                  data
+                )
+              }
+            )
           })
           .on('error', (error) => {
             console.log('parsing error', error)
