@@ -49,6 +49,16 @@ resources:
         Protocol: email
         TopicArn:
           Ref: SNSTopic
+    SNSSubscriptionAdmin:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: coding@mail.ru
+        Protocol: email
+        FilterPolicy:
+          priority:
+            - high
+        TopicArn:
+          Ref: SNSTopic
   Outputs:
     SQSQueueUrl:
       Value:

@@ -26,6 +26,13 @@ export const catalogBatchProcess: SQSHandler = async (event: SQSEvent) => {
         Subject: "notification subject",
         Message: "new goods added",
         TopicArn: process.env.SNS_ARN,
+        MessageAttributes: {
+          priority: {
+            StringValue: "low",
+            DataType: "String",
+          },
+        },
+
       },
       () => {
         console.log("message sent to email");
