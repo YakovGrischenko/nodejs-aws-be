@@ -17,25 +17,45 @@ frameworkVersion: "2"
 provider:
   name: aws
   runtime: nodejs12.x
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sns:*"
+      Resource:
+        Ref: SNSTopic
   stage: dev
   region: eu-west-1
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    SNS_ARN:
+      Ref: SNSTopic
 resources:
   Resources:
     SQSQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: rss-yg-sqs-queue
+        QueueName: rss-yg-sqs-queue-v3
+        ReceiveMessageWaitTimeSeconds: 20
+    SNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: rss-yg-sns-topic
+    SNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: yakov.grischenko@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: SNSTopic
   Outputs:
     SQSQueueUrl:
       Value:
         Ref: SQSQueue
     SQSQueueArn:
       Value:
-        Fn::GetAtt: [ SQSQueue, Arn ]
+        Fn::GetAtt: [SQSQueue, Arn]
 functions:
   catalogBatchProcess:
     handler: handler.catalogBatchProcess
