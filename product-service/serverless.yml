@@ -36,12 +36,12 @@ resources:
     SQSQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: rss-yg-sqs-queue-v3
+        QueueName: catalogItemsQueue
         ReceiveMessageWaitTimeSeconds: 20
     SNSTopic:
       Type: AWS::SNS::Topic
       Properties:
-        TopicName: rss-yg-sns-topic
+        TopicName: createProductTopic
     SNSSubscription:
       Type: AWS::SNS::Subscription
       Properties:
