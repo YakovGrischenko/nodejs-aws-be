@@ -1,5 +1,5 @@
 import { SQSHandler, SQSEvent } from "aws-lambda";
-import * as AWS from "aws-sdk";
+import AWS from "aws-sdk";
 import "source-map-support/register";
 import { addProduct } from "./productDbLogic";
 
