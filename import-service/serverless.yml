@@ -26,13 +26,18 @@ provider:
         - "s3:*"
       Resource:
         - "arn:aws:s3:::rss-aws-task5-yg/*"
-
+    - Effect: "Allow"
+      Action:
+        - "sqs:*"
+      Resource:
+        - "${cf:product-service-dev.SQSQueueArn}"
   stage: dev
   region: eu-west-1
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    SQS_URL: "${cf:product-service-dev.SQSQueueUrl}"
 functions:
   importProductsFile:
     handler: handler.importProductsFile
