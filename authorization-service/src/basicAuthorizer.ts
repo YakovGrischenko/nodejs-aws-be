@@ -24,16 +24,18 @@ export const basicAuthorizer = async (
     const encodedCreds = authorizationToken.split(" ")[1];
     const buff = Buffer.from(encodedCreds, "base64");
     const plainCreds = buff.toString("utf-8").split(":");
-    const [username, password] = plainCreds;
+    const username = plainCreds[0].toLowerCase();
+    const password = plainCreds[1];
+
 
     console.log(`username: ${username} and password: ${password}`);
 
     const storedUserPassword = process.env[username];
-    const effect ="Allow";
-      //!storedUserPassword || storedUserPassword !== password ? "Deny" : "Allow";
-   
+    const effect = !storedUserPassword || storedUserPassword !== password ? "Deny" : "Allow";
+    
+    console.log(`effect: ${effect} `);
 
-    let result: APIGatewayAuthorizerResult;
+       let result: APIGatewayAuthorizerResult;
     const resArn = event.methodArn;
 
     result = {
