@@ -35,27 +35,25 @@ export const basicAuthorizer = async (
     
     console.log(`effect: ${effect} `);
 
-       let result: APIGatewayAuthorizerResult;
-    const resArn = event.methodArn;
-
-    result = {
-      principalId: encodedCreds,
-      policyDocument: {
-        Version: "2012-10-17",
-        Statement: 
-          {
-            Action: "execute-api:Invoke",
-            Effect: effect,
-            Resource: resArn,
-          },
-        
-      },
-    };
-
-    //const result = generatePolicy(encodedCreds, event.methodArn, effect);
-    //return result;
+    const result = generatePolicy(encodedCreds, event.methodArn, effect);
     cb(null, result);
   } catch (error) {
     cb(`Unauthorized : ${error.message}`);
   }
+};
+
+const generatePolicy = (principalId, resource, effect = 'Allow') => {
+  return {
+    principalId: principalId,
+    policyDocument: {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Action: 'execute-api:Invoke',
+          Effect: effect,
+          Resource: resource,
+        },
+      ],
+    },
+  };
 };
