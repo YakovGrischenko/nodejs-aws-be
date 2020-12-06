@@ -12,32 +12,32 @@ custom:
 # Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
-frameworkVersion: "2"
+frameworkVersion: '2'
 provider:
   name: aws
   runtime: nodejs12.x
   iamRoleStatements:
-    - Effect: "Allow"
-      Action: "s3:ListBucket"
+    - Effect: 'Allow'
+      Action: 's3:ListBucket'
       Resource:
-        - "arn:aws:s3:::rss-aws-task5-yg"
-    - Effect: "Allow"
+        - 'arn:aws:s3:::rss-aws-task5-yg'
+    - Effect: 'Allow'
       Action:
-        - "s3:*"
+        - 's3:*'
       Resource:
-        - "arn:aws:s3:::rss-aws-task5-yg/*"
-    - Effect: "Allow"
+        - 'arn:aws:s3:::rss-aws-task5-yg/*'
+    - Effect: 'Allow'
       Action:
-        - "sqs:*"
+        - 'sqs:*'
       Resource:
-        - "${cf:product-service-dev.SQSQueueArn}"
+        - '${cf:product-service-dev.SQSQueueArn}'
   stage: dev
   region: eu-west-1
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    SQS_URL: "${cf:product-service-dev.SQSQueueUrl}"
+    SQS_URL: '${cf:product-service-dev.SQSQueueUrl}'
 functions:
   importProductsFile:
     handler: handler.importProductsFile
@@ -45,13 +45,17 @@ functions:
       - http:
           method: get
           path: import
-          cors:
-            origin: "*"
+          cors: true
+          authorizer:
+            name: basicAuthorizer
+            arn: "${cf:authorization-service-dev.basicAuthorizerArn}"
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
           request:
             parameters:
               querystrings:
                 name: true
-
   importFileParser:
     handler: handler.importFileParser
     events:
@@ -61,3 +65,34 @@ functions:
           rules:
             - prefix: uploaded/
           existing: true
+
+resources:
+  Resources:
+    GatewayResponse4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+        ResponseType: DEFAULT_4XX
+        RestApiId: !Ref ApiGatewayRestApi
+    GatewayResponseAccessDeied:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+        ResponseType: ACCESS_DENIED
+        RestApiId: !Ref ApiGatewayRestApi
+    GatewayResponseUnauthorized:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+        ResponseType: UNAUTHORIZED
+        RestApiId: !Ref ApiGatewayRestApi
+
