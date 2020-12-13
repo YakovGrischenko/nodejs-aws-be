@@ -2,4 +2,4 @@
 
 backend monorepo for rs school node.js aws course
 
-**task 7**
+**task 9**
